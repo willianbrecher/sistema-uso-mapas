@@ -1,0 +1,70 @@
+[
+    {
+        "name": "Intelltech",
+        "color": "#436AD6",
+        "longitude": "-54.583224540037115",
+        "latitude": "-25.546191509702616",
+        "attributes": [
+            {
+                "name": "Andar",
+                "value": "12"
+            },
+            {
+                "name": "Funcionários",
+                "value": "48"
+            },
+            {
+                "name": "Salas de reunião",
+                "value": "3"
+            }
+        ]
+    },
+    {
+        "name": "Ponte da Amizade",
+        "color": "#D143D6",
+        "longitude": "-54.5988773",
+        "latitude": "-25.5093739",
+        "attributes": [
+            {
+                "name": "Status",
+                "value": "Aberta"
+            },
+            {
+                "name": "Fluxo de pessoas por dia",
+                "value": "1000"
+            }
+        ]
+    },
+    {
+        "name": "Lima",
+        "color": "#6FD42C",
+        "longitude": "-77.05284263711589",
+        "latitude": "-12.043419866980171",
+        "attributes": [
+            {
+                "name": "Idioma",
+                "value": "Espanhol"
+            },
+            {
+                "name": "Moeda",
+                "value": "Novo sol"
+            }
+        ]
+    },
+    {
+        "name": "Belo Horizonte",
+        "color": "#FC6025",
+        "longitude": "-43.933970458831205",
+        "latitude": "-19.917076871573837",
+        "attributes": [
+            {
+                "name": "Estado",
+                "value": "Minas Gerais"
+            },
+            {
+                "name": "População",
+                "value": "20,87 milhões"
+            }
+        ]
+    }     
+]

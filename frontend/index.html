@@ -12,19 +12,27 @@
 
 <body>
   <div ng-controller="AppController">
-    <div class="row">
-      <div class="col-md-2">
+    <div class="d-flex flex-row">
+      <div class="p-2">
         <input ng-model="filterText" placeholder="Procurar" class="form-control mb-3" />
-        <button class='btn' data-toggle='modal' data-toggle='modal' data-target='#importModal'>Importar</button>
+        <button class='btn btn-flat btn-primary mb-2 btn-block' ng-click="newForm()">Adicionar ponto</button>
+        <button class='btn btn-flat btn-info mb-2 btn-block' data-toggle='modal' data-toggle='modal'
+          data-target='#importModal'>Importar de arquivo CSV</button>
+          <button class='btn btn-flat btn-info mb-2 btn-block' data-toggle='modal' data-toggle='modal'
+          data-target='#scriptModal'>Gerar JSON MongoDB (script)</button>          
         <ul class="list-group">
           <li class="list-group-item" ng-repeat="coordenate in coordenates | filter:filterText">
-            <button class="btn btn-default btn-block text-left" ng-click="loadCoordenate(coordenate._id)">
-              {{coordenate.name}}
-            </button>
+            {{coordenate.name}}
+            <a class="btn  pull-right" ng-click="editForm(coordenate._id)">
+              <i class="fa fa-edit"></i>
+            </a>
+            <a class="btn pull-right" ng-click="moveToPoint(coordenate._id)">
+              <i class="fa fa-map-marker"></i>
+            </a>
           </li>
         </ul>
       </div>
-      <div id="map" class="flex-fill"></div>
+      <div id="map" class="p-2"></div>
     </div>
 
     <!-- modal file -->
@@ -36,10 +44,10 @@
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
-          </div> 
+          </div>
           <div class="modal-body" ng-controller="UploadFileController">
             <form ng-submit="submitImportForm()">
-              <input type="file" ngf-select="SelectFile($file)"/>
+              <input type="file" ngf-select="SelectFile($file)" />
               <button class="btn btn-success btn-flat pull-right ml-2">Importar</button>
             </form>
           </div>
@@ -47,55 +55,94 @@
       </div>
     </div>
 
+    <!-- modal script -->
+    <div class="modal fade" id="scriptModal" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Gerar script de importação</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" ng-controller="UploadFileController">
+            <form ng-submit="submitScriptForm()">
+              <input type="file" ngf-select="SelectFile($file)" />
+              <button class="btn btn-success btn-flat pull-right ml-2">Importar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>    
+
 
     <!-- modal -->
     <div class="modal fade" id="formModal" data-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Dados do ponto</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>          
-          <div class="modal-body">
-            <form>
+          <form ng-submit="(coordenate._id == null ? createPoint() : updatePoint())">
+            <div class="modal-header">
+              <h5 class="modal-title">Dados do ponto</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
               <div class="form-group">
                 <label for="name">Nome do Ponto</label>
-                <input id="name" ng-model="coordenate.name" class="form-control"/>
+                <input id="name" ng-model="coordenate.name" class="form-control" required />
+              </div>
+              <div ng-show="coordenate._id == null">
+                <div class="form-group">
+                  <label>Latitude</label>
+                  <input ng-model="coordenate.latitude" class="form-control" required />
+                </div>
+                <div class="form-group">
+                  <label>Longitude</label>
+                  <input ng-model="coordenate.longitude" class="form-control" required />
+                </div>
               </div>
               <div class="form-group">
                 <label for="color">Cor</label>
-                <input id="color" ng-model="coordenate.color" class="form-control"/>
-              </div>    
-              <a class="btn btn-flat btn-info pull-right" ng-click="coordenate.attributes.push({})">Adicionar atributo</a>  
-              <div ng-repeat="attribute in coordenate.attributes">
-                <div class="input-group">
-                  <div class="form-group mr-2">
-                    <label>Atributo</label>
-                    <input ng-model="attribute.name" class="form-control" required/>
+                <input id="color" ng-model="coordenate.color" class="form-control" required />
+              </div>
+              <a class="btn btn-flat btn-info btn-block" ng-click="coordenate.attributes.push({})">Adicionar
+                atributo</a>
+              <div class="mt-3" style="max-height: 160px; overflow-x: auto;">
+                <div ng-repeat="attribute in coordenate.attributes">
+                  <div class="input-group">
+                    <div class="form-group mr-2">
+                      <label>Atributo</label>
+                      <input ng-model="attribute.name" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                      <label>Valor</label>
+                      <input ng-model="attribute.value" class="form-control" required />
+                    </div>
+                    <a ng-click="coordenate.attributes.splice($index,1)">
+                      <i class="fa fa-trash"></i>
+                    </a>
                   </div>
-                  <div class="form-group">
-                    <label>Valor</label>
-                    <input ng-model="attribute.value" class="form-control" required/>
-                  </div>
-                  <a ng-click="coordenate.attributes.splice($index,1)">
-                    <i class="fa fa-trash"></i>
-                  </a>
                 </div>
               </div>
-              <hr>
-              <button class="btn btn-success btn-flat pull-right ml-2" ng-click="submitPoint()">Salvar alterações</button>
-              <button class="btn btn-danger btn-flat pull-right" ng-click="removePoint()">Remover ponto</button>
-            </form>
-          </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-success btn-flat pull-right ml-2"
+                ng-show="coordenate._id == null">Salvar</button>
+              <button class="btn btn-success btn-flat pull-right ml-2"
+                ng-show="coordenate._id != null">Salvar alterações</button>
+              <button class="btn btn-danger btn-flat pull-right" ng-click="removePoint()"
+                ng-show="coordenate._id != null">Remover ponto</button>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
-
   </div>
 </body>
 <script src="./node_modules/angular/angular.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.2.13/ng-file-upload.min.js"></script>
+<script type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.2.13/ng-file-upload.min.js"></script>
 <script src="./node_modules/leaflet/dist/leaflet.js"></script>
 <script src="./node_modules/jquery/dist/jquery.min.js"></script>
 <script src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>

@@ -10,7 +10,7 @@ exports.find_all = function (request, response) {
     Coordenate.find({}, function (error, value) {
         if (error)
             response.status(500).send(error);
-        response.status(200).json(value);
+        response.status(200).json(value.sort());
     });
 };
 
@@ -49,7 +49,6 @@ exports.save = function (request, response) {
  * @param {Response} response 
  */
 exports.update = function (request, response) {
-    console.log(request.body);
     Coordenate.findOneAndUpdate({ _id: request.params.id }, request.body,
         function (error, value) {
             if (error)

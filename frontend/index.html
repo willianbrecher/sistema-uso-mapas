@@ -15,7 +15,7 @@
     <div class="row">
       <div class="col-md-2">
         <input ng-model="filterText" placeholder="Procurar" class="form-control mb-3" />
-        <button>Adicionar ponto</button>
+        <button class='btn' data-toggle='modal' data-toggle='modal' data-target='#importModal'>Importar</button>
         <ul class="list-group">
           <li class="list-group-item" ng-repeat="coordenate in coordenates | filter:filterText">
             <button class="btn btn-default btn-block text-left" ng-click="loadCoordenate(coordenate._id)">
@@ -27,8 +27,29 @@
       <div id="map" class="flex-fill"></div>
     </div>
 
+    <!-- modal file -->
+    <div class="modal fade" id="importModal" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Importar pontos</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div> 
+          <div class="modal-body" ng-controller="UploadFileController">
+            <form ng-submit="submitImportForm()">
+              <input type="file" ngf-select="SelectFile($file)"/>
+              <button class="btn btn-success btn-flat pull-right ml-2">Importar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
     <!-- modal -->
-    <div class="modal fade" id="formModal">
+    <div class="modal fade" id="formModal" data-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -38,7 +59,7 @@
             </button>
           </div>          
           <div class="modal-body">
-            <form ng-submit="SubmitForm()">
+            <form>
               <div class="form-group">
                 <label for="name">Nome do Ponto</label>
                 <input id="name" ng-model="coordenate.name" class="form-control"/>
@@ -47,7 +68,7 @@
                 <label for="color">Cor</label>
                 <input id="color" ng-model="coordenate.color" class="form-control"/>
               </div>    
-              <a class="btn btn-flat btn-info pull-right" ng-click="coordenate.attributes.push([])">Adicionar atributo</a>  
+              <a class="btn btn-flat btn-info pull-right" ng-click="coordenate.attributes.push({})">Adicionar atributo</a>  
               <div ng-repeat="attribute in coordenate.attributes">
                 <div class="input-group">
                   <div class="form-group mr-2">
@@ -64,8 +85,8 @@
                 </div>
               </div>
               <hr>
-              <button class="btn btn-success btn-flat pull-right ml-2">Salvar alterações</button>
-              <button class="btn btn-danger btn-flat pull-right">Remover ponto</button>
+              <button class="btn btn-success btn-flat pull-right ml-2" ng-click="submitPoint()">Salvar alterações</button>
+              <button class="btn btn-danger btn-flat pull-right" ng-click="removePoint()">Remover ponto</button>
             </form>
           </div>
         </div>
@@ -74,6 +95,7 @@
   </div>
 </body>
 <script src="./node_modules/angular/angular.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.2.13/ng-file-upload.min.js"></script>
 <script src="./node_modules/leaflet/dist/leaflet.js"></script>
 <script src="./node_modules/jquery/dist/jquery.min.js"></script>
 <script src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>

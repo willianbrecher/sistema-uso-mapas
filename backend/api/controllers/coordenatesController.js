@@ -9,8 +9,8 @@ var mongoose = require('mongoose'),
 exports.find_all = function (request, response) {
     Coordenate.find({}, function (error, value) {
         if (error)
-            response.send(error);
-        response.json(value);
+            response.status(500).send(error);
+        response.status(200).json(value);
     });
 };
 
@@ -22,8 +22,8 @@ exports.find_all = function (request, response) {
 exports.find_by_id = function (request, response) {
     Coordenate.findById(request.params.id, function (error, value) {
         if (error)
-            response.send(error);
-        response.json(value);
+            response.status(500).send(error);
+        response.status(200).json(value);
     });
 };
 
@@ -33,13 +33,14 @@ exports.find_by_id = function (request, response) {
  * @param {Response} response 
  */
 exports.save = function (request, response) {
-    var coordenate = new Coordenate(request.body);
-    console.log(request.body);
-    coordenate.save(function (error, value) {
-        if (error)
-            response.send(error);
-        response.json(value);
+    request.body.map(item => {
+        var coordenate = new Coordenate(item);
+        coordenate.save(function (error, value) {
+            if (error)
+                response.status(500).send(error);
+        });
     });
+    response.status(201).send();
 };
 
 /**
@@ -48,11 +49,12 @@ exports.save = function (request, response) {
  * @param {Response} response 
  */
 exports.update = function (request, response) {
+    console.log(request.body);
     Coordenate.findOneAndUpdate({ _id: request.params.id }, request.body,
         function (error, value) {
             if (error)
-                response.send(error);
-            response.json(value);
+                response.status(500).send(error);
+            response.status(200).send();
         });
 };
 
@@ -65,7 +67,7 @@ exports.remove = function (request, response) {
     Coordenate.deleteOne({ _id: request.params.id },
         function (error, value) {
             if (error)
-                response.send(error);
-            response.json(value);
+                response.status(500).send(error);
+            response.status(200).send();
         });
 };

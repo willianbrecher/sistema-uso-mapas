@@ -1,86 +1,92 @@
 <!DOCTYPE html>
 <html ng-app="mapApp">
-<header>
+
+<head>
   <title>Desafio mapas</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
   <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="./assets/css/custom.css" />
   <link rel="stylesheet" href="./node_modules/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="./node_modules/font-awesome/css/font-awesome.min.css" />
-</header>
+</head>
 
 <body>
   <div ng-controller="AppController">
     <div class="d-flex flex-row">
       <div class="p-2">
-        <input ng-model="filterText" placeholder="Procurar" class="form-control mb-3" />
-        <button class='btn btn-flat btn-primary mb-2 btn-block' ng-click="newForm()">Adicionar ponto</button>
-        <button class='btn btn-flat btn-info mb-2 btn-block' data-toggle='modal' data-toggle='modal'
-          data-target='#importModal'>Importar de arquivo CSV</button>
-          <button class='btn btn-flat btn-info mb-2 btn-block' data-toggle='modal' data-toggle='modal'
-          data-target='#scriptModal'>Gerar JSON MongoDB (script)</button>          
-        <ul class="list-group">
-          <li class="list-group-item" ng-repeat="coordenate in coordenates | filter:filterText">
-            {{coordenate.name}}
-            <a class="btn  pull-right" ng-click="editForm(coordenate._id)">
+        <button class="btn btn-flat btn-primary mb-2 btn-block" ng-click="newForm()"><i class="fa fa-plus"></i> Adicionar ponto</button>
+        <button class="btn btn-flat btn-info mb-2 btn-block" data-toggle="modal"
+          data-target="#importModal"><i class="fa fa-upload"></i> Importar de arquivo CSV</button>
+        <button class="btn btn-flat btn-info mb-2 btn-block" data-toggle="modal"
+          data-target="#scriptModal"><i class="fa fa-database"></i> Gerar JSON MongoDB (script)</button>
+        <input ng-model="filterText" placeholder="Procurar" class="form-control mb-1 mt-3" />
+        <ul class="list-group sidebar-list">
+          <li class="list-group-item d-flex" ng-repeat="coordinate in coordinates | filter:filterText">
+            <span class="mr-auto p-2">{{coordinate.name}}</span>
+            <button class="p-2 btn" ng-click="editForm(coordinate._id)" title="Editar o ponto">
               <i class="fa fa-edit"></i>
-            </a>
-            <a class="btn pull-right" ng-click="moveToPoint(coordenate._id)">
+            </button>
+            <button class="p-2 btn" ng-click="moveToPoint(coordinate._id)" title="Ir para o ponto">
               <i class="fa fa-map-marker"></i>
-            </a>
+            </button>
           </li>
         </ul>
       </div>
-      <div id="map" class="p-2"></div>
+      <div id="map" class="ml-2 mr-2"></div>
     </div>
 
     <!-- modal file -->
     <div class="modal fade" id="importModal" data-backdrop="static">
       <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Importar pontos</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body" ng-controller="UploadFileController">
-            <form ng-submit="submitImportForm()">
-              <input type="file" ngf-select="SelectFile($file)" />
+        <form ng-submit="submitImportForm()">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Importar pontos</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <input type="file" ngf-select="selectFile($file)" />
+            </div>
+            <div class="modal-footer">
               <button class="btn btn-success btn-flat pull-right ml-2">Importar</button>
-            </form>
+            </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
 
     <!-- modal script -->
     <div class="modal fade" id="scriptModal" data-backdrop="static">
       <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Gerar script de importação</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
+        <form ng-submit="submitScriptForm()">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Gerar script de importação</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <input type="file" ngf-select="selectFile($file)" />
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-success btn-flat pull-right ml-2">Gerar</button>
+            </div>
           </div>
-          <div class="modal-body" ng-controller="UploadFileController">
-            <form ng-submit="submitScriptForm()">
-              <input type="file" ngf-select="SelectFile($file)" />
-              <button class="btn btn-success btn-flat pull-right ml-2">Importar</button>
-            </form>
-          </div>
-        </div>
+        </form>
       </div>
-    </div>    
+    </div>
 
 
-    <!-- modal -->
+    <!-- modal form -->
     <div class="modal fade" id="formModal" data-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
-          <form ng-submit="(coordenate._id == null ? createPoint() : updatePoint())">
+          <form>
             <div class="modal-header">
               <h5 class="modal-title">Dados do ponto</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -90,49 +96,53 @@
             <div class="modal-body">
               <div class="form-group">
                 <label for="name">Nome do Ponto</label>
-                <input id="name" ng-model="coordenate.name" class="form-control" required />
+                <input id="name" ng-model="coordinate.name" class="form-control" required />
               </div>
-              <div ng-show="coordenate._id == null">
+              <div ng-show="coordinate._id == null">
                 <div class="form-group">
                   <label>Latitude</label>
-                  <input ng-model="coordenate.latitude" class="form-control" required />
+                  <input ng-model="coordinate.latitude" class="form-control" required />
                 </div>
                 <div class="form-group">
                   <label>Longitude</label>
-                  <input ng-model="coordenate.longitude" class="form-control" required />
+                  <input ng-model="coordinate.longitude" class="form-control" required />
                 </div>
               </div>
               <div class="form-group">
                 <label for="color">Cor</label>
-                <input id="color" ng-model="coordenate.color" class="form-control" required />
+                <input id="color" ng-model="coordinate.color" class="form-control" required />
               </div>
-              <a class="btn btn-flat btn-info btn-block" ng-click="coordenate.attributes.push({})">Adicionar
+              <a class="btn btn-flat btn-info btn-block" ng-click="coordinate.attributes.push({})">
+                <i class="fa fa-plus"></i>
+                Adicionar
                 atributo</a>
               <div class="mt-3" style="max-height: 160px; overflow-x: auto;">
-                <div ng-repeat="attribute in coordenate.attributes">
+                <div ng-repeat="attribute in coordinate.attributes">
                   <div class="input-group">
-                    <div class="form-group mr-2">
+                    <div class="form-group mr-1">
                       <label>Atributo</label>
                       <input ng-model="attribute.name" class="form-control" required />
                     </div>
                     <div class="form-group">
                       <label>Valor</label>
-                      <input ng-model="attribute.value" class="form-control" required />
+                      <div class="input-group">
+                        <input ng-model="attribute.value" class="form-control" required />
+                        <div class="input-group-append">
+                          <a class="btn btn-danger" ng-click="coordinate.attributes.splice($index,1)">
+                            <i class="fa fa-trash"></i>
+                          </a>
+                        </div>
+                      </div>
                     </div>
-                    <a ng-click="coordenate.attributes.splice($index,1)">
-                      <i class="fa fa-trash"></i>
-                    </a>
                   </div>
                 </div>
               </div>
             </div>
             <div class="modal-footer">
-              <button class="btn btn-success btn-flat pull-right ml-2"
-                ng-show="coordenate._id == null">Salvar</button>
-              <button class="btn btn-success btn-flat pull-right ml-2"
-                ng-show="coordenate._id != null">Salvar alterações</button>
               <button class="btn btn-danger btn-flat pull-right" ng-click="removePoint()"
-                ng-show="coordenate._id != null">Remover ponto</button>
+                ng-show="coordinate._id != null">Remover</button>
+              <button class="btn btn-success btn-flat pull-right ml-2"
+                ng-click="(coordinate._id == null ? createPoint() : updatePoint())">Salvar</button>
             </div>
           </form>
         </div>
@@ -141,8 +151,7 @@
   </div>
 </body>
 <script src="./node_modules/angular/angular.min.js"></script>
-<script type="text/javascript"
-  src="https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.2.13/ng-file-upload.min.js"></script>
+<script src="./node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
 <script src="./node_modules/leaflet/dist/leaflet.js"></script>
 <script src="./node_modules/jquery/dist/jquery.min.js"></script>
 <script src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>

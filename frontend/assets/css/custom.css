@@ -1,9 +1,23 @@
-html, body{
+body{
+    margin-top: 20px;
     height: 100%;
     width: 100%;
   }
 
   #map{
-    /* height: 700px; */
     width: 100%;
+  }
+
+  .sidebar-list {
+    height: 620px;
+    width: 300px;
+    overflow-x: auto;
+  }
+
+  .sidebar-list .list-group-item{
+    padding: 2px !important;
+  }
+
+  .popup-map-label {
+    font-size: 2vh;
   }

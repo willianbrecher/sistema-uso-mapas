@@ -2,7 +2,7 @@ var express = require('express'),
   app = express(),
   port = process.env.PORT || 3000;
   mongoose = require('mongoose'),  
-  Coordenate = require('./api/models/coordenate');
+  Coordinate = require('./api/models/coordinate');
   bodyParser = require('body-parser');
 
 mongoose.Promise = global.Promise;

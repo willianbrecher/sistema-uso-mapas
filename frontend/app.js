@@ -2,22 +2,27 @@ const app = angular.module('mapApp', ['ngFileUpload']);
 
 const baseUrl = 'http://localhost:3000';
 
-var map = L.map('map').setView([-25.5012, -54.5782], 15);
+var map = L.map('map').setView([-25.5012, -54.5782], 15); // inicia em Foz do Iguaçu
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {}).addTo(map);
-L.control.scale().addTo(map);
 
-var activeMark;
+var activedMark;
 
+/**
+ * 
+ */
 app.run(['$rootScope', '$http', function ($rootScope, $http) {
-    $http.get(baseUrl + '/coordenates').then(response => {
-        $rootScope.coordenates = response.data;
+    $http.get(baseUrl + '/coordinates').then(response => {
+        $rootScope.coordinates = response.data;
     }).catch(error => console.log(error));
 }]);
 
+/**
+ * 
+ */
 app.controller('AppController', function ($scope, $http) {
 
     $scope.newForm = function () {
-        $scope.coordenate = {
+        $scope.coordinate = {
             name: "",
             cor: "",
             latitude: "",
@@ -29,54 +34,53 @@ app.controller('AppController', function ($scope, $http) {
     }
 
     $scope.editForm = function (id) {
-        $scope.loadCoordenate(id);
+        $scope.loadcoordinate(id);
         $('#formModal').modal('show');
     }
 
     $scope.refreshList = function () {
-        $http.get(baseUrl + '/coordenates').then(response => {
-            $scope.coordenates = response.data;
+        $http.get(baseUrl + '/coordinates').then(response => {
+            $scope.coordinates = response.data;
         }).catch(error => console.log(error));
 
-        if (activeMark != null)
-            map.setView([-25.5012, -54.5782], 15).removeLayer(activeMark);
+        if (activedMark != null)
+            map.setView([-25.5012, -54.5782], 15).removeLayer(activedMark);
     }
 
     $scope.createPoint = function () {
-        $http.post(baseUrl + '/coordenates/', [$scope.coordenate]).then(response => {
+        $http.post(baseUrl + '/coordinates/', [$scope.coordinate]).then(response => {
             $('#formModal').modal('hide');
             $scope.refreshList();
-        }).catch(error => console.log(error));
+        }).catch(error => alert("Ocorreu um erro ao tentar criar o ponto."));
     }
 
     $scope.updatePoint = function () {
-        $http.put(baseUrl + '/coordenates/' + $scope.coordenate._id, $scope.coordenate).then(response => {
+        $http.put(baseUrl + '/coordinates/' + $scope.coordinate._id, $scope.coordinate).then(response => {
             $('#formModal').modal('hide');
             $scope.refreshList();
-        }).catch(error => console.log(error));
+        }).catch(error => alert("Ocorreu um erro ao tentar atualizar o ponto."));
     }
 
     $scope.removePoint = function () {
-        $http.delete(baseUrl + '/coordenates/' + $scope.coordenate._id).then(response => {
+        $http.delete(baseUrl + '/coordinates/' + $scope.coordinate._id).then(response => {
             $('#formModal').modal('hide');
             $scope.refreshList();
-        }).catch(error => console.log(error));
+        }).catch(error => alert("Ocorreu um erro ao tentar remover o ponto."));
     }
 
-    $scope.loadCoordenate = function (id) {
-        $http.get(baseUrl + '/coordenates/' + id).then(response => {
-            $scope.coordenate = response.data;
+    $scope.loadcoordinate = function (id) {
+        return $http.get(baseUrl + '/coordinates/' + id).then(response => {
+            $scope.coordinate = response.data;
         }).catch(error => console.log(error));
     }
 
     $scope.moveToPoint = function (id) {
-        $scope.loadCoordenate(id);
-        renderPoint($scope.coordenate);
+        $scope.loadcoordinate(id).then(value => {
+            renderPoint($scope.coordinate);
+        });
     }
-});
 
-app.controller('UploadFileController', function ($scope, $http) {
-    $scope.SelectFile = function (file) {
+    $scope.selectFile = function (file) {
         $scope.SelectedFile = file;
     };
 
@@ -106,15 +110,17 @@ app.controller('UploadFileController', function ($scope, $http) {
                 return point;
             });
 
-            var file = new Blob([JSON.stringify(mapPoints)], {type: 'text/plain'});
+            var file = new Blob([JSON.stringify(mapPoints)], { type: 'text/plain' });
 
             var fileURL = URL.createObjectURL(file);
-            var a         = document.createElement('a');
-            a.href        = fileURL; 
-            a.target      = '_blank';
-            a.download    = 'documento-mongodb.json';
+            var a = document.createElement('a');
+            a.href = fileURL;
+            a.target = '_blank';
+            a.download = 'documento-mongodb.json';
             document.body.appendChild(a);
             a.click();
+
+            $('#scriptModal').modal('hide');
         }
     }
 
@@ -145,9 +151,12 @@ app.controller('UploadFileController', function ($scope, $http) {
                     return point;
                 });
 
-                $http.post(baseUrl + '/coordenates', mapPoints, {}).then(function successCallBack(response) {
+                $http.post(baseUrl + '/coordinates', mapPoints, {}).then(function successCallBack(response) {
                     $('#importModal').modal('hide');
+                    alert('Dados importados com sucesso.');
                     $scope.refreshList();
+                }).catch(error => {
+                    alert('Ocorreu um erro ao importar os dados.');
                 });
             } else {
                 alert('Arquivo possui mais de 100 linhas e é muito grande para importação via API. Utilize o script de importação.');
@@ -157,17 +166,28 @@ app.controller('UploadFileController', function ($scope, $http) {
     }
 });
 
-function renderPoint(coordenate) {
-    activeMark = L.marker([coordenate.latitude, coordenate.longitude])
-        .bindPopup("<label>" + coordenate.name + "</label>" +
-            "<button class=\"btn\" data-toggle='modal' data-toggle='modal' data-target='#formModal'><i class='fa fa-edit'></i></button>" +
-            coordenate.attributes.map(item => {
-                return "<label>" +
-                    item.name + " - " + item.value +
-                    "</label></br>";
-            }))
+/**
+ * 
+ * @param {*} coordinate 
+ */
+function renderPoint(coordinate) {
+
+    activedMark = L.marker([coordinate.latitude, coordinate.longitude])
+        .bindPopup(
+            '<div class="d-flex">' +
+            '<label class="popup-map-label mr-auto p-2">' + coordinate.name + '</label>' +
+            '<button class="btn p-2" data-toggle="modal" data-target="#formModal"><i class="fa fa-edit"></i></button>' +
+            '</div>' +
+            '<table>' +
+            coordinate.attributes.map(item => {
+                return '<tr>' +
+                    '<td class="p-2">' + item.name + ':</td>' +
+                    '<td class="p-2">' + item.value + '</td>' +
+                    '</tr>'
+            }).join('') +
+            '</table>')
         .addTo(map)
         .openPopup();
 
-    map.setView([coordenate.latitude, coordenate.longitude], 20);
+    map.setView([coordinate.latitude, coordinate.longitude], 20);
 }

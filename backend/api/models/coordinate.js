@@ -4,36 +4,36 @@ const Schema = mongoose.Schema;
 const Attribute = new Schema({
     name: {
         type: String,
-        required: 'Need a name'
+        required: 'A name is required'
     },
     value: {
         type: String,
-        require: 'Need a value'
+        require: 'A value is required'
     },
-    coordenate: {
+    Coordinate: {
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Coordenate' 
+        ref: 'Coordinate' 
     }
 });
 
-const Coordenate = new Schema({
+const Coordinate = new Schema({
     name: {
         type: String,
-        required: 'Need a name'
+        required: 'A name is required'
     },
     color: {
         type: String,
-        require: 'Need a color'
+        require: 'A color is required'
     },
     longitude: {
         type: String,
-        required: 'Need a logitude'
+        required: 'A longitude is required'
     },
     latitude: {
         type: String,
-        required: 'Need a latitude'
+        required: 'A latitude is required'
     },
     attributes: [Attribute]
 });
 
-module.exports = mongoose.model('Coordenate', Coordenate);
+module.exports = mongoose.model('Coordinate', Coordinate);

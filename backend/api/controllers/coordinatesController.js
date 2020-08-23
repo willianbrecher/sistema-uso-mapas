@@ -1,13 +1,13 @@
 var mongoose = require('mongoose'),
-    Coordenate = mongoose.model('Coordenate');
+    Coordinate = mongoose.model('Coordinate');
 
 /**
- * Method to find all coordenates
+ * Method to find all coordinates
  * @param {Request} request 
  * @param {Response} response 
  */
 exports.find_all = function (request, response) {
-    Coordenate.find({}, function (error, value) {
+    Coordinate.find({}, function (error, value) {
         if (error)
             response.status(500).send(error);
         response.status(200).json(value.sort());
@@ -15,12 +15,12 @@ exports.find_all = function (request, response) {
 };
 
 /**
- * Method to find the coordenate by id
+ * Method to find the Coordinate by id
  * @param {Request} request 
  * @param {Response} response 
  */
 exports.find_by_id = function (request, response) {
-    Coordenate.findById(request.params.id, function (error, value) {
+    Coordinate.findById(request.params.id, function (error, value) {
         if (error)
             response.status(500).send(error);
         response.status(200).json(value);
@@ -28,14 +28,14 @@ exports.find_by_id = function (request, response) {
 };
 
 /**
- * Method to save the coordenate
+ * Method to save a list of coordinates
  * @param {Request} request 
  * @param {Response} response 
  */
 exports.save = function (request, response) {
     request.body.map(item => {
-        var coordenate = new Coordenate(item);
-        coordenate.save(function (error, value) {
+        var coordinate = new Coordinate(item);
+        coordinate.save(function (error, value) {
             if (error)
                 response.status(500).send(error);
         });
@@ -44,12 +44,12 @@ exports.save = function (request, response) {
 };
 
 /**
- * Method to update the coordenate
+ * Method to update the Coordinate
  * @param {Request} request 
  * @param {Response} response 
  */
 exports.update = function (request, response) {
-    Coordenate.findOneAndUpdate({ _id: request.params.id }, request.body,
+    Coordinate.findOneAndUpdate({ _id: request.params.id }, request.body,
         function (error, value) {
             if (error)
                 response.status(500).send(error);
@@ -58,12 +58,12 @@ exports.update = function (request, response) {
 };
 
 /**
- * Method to remove the coordenate
+ * Method to remove the Coordinate
  * @param {Request} request 
  * @param {Response} response 
  */
 exports.remove = function (request, response) {
-    Coordenate.deleteOne({ _id: request.params.id },
+    Coordinate.deleteOne({ _id: request.params.id },
         function (error, value) {
             if (error)
                 response.status(500).send(error);

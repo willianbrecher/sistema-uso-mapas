@@ -1,5 +1,5 @@
 module.exports = function (app) {
-    var coordenates = require('./controllers/coordenatesController');
+    var coordinates = require('./controllers/coordinatesController');
 
     app.use(function(req, res, next) {
       res.header("Access-Control-Allow-Origin", "*");
@@ -8,12 +8,12 @@ module.exports = function (app) {
       next();
     });
 
-    app.route('/coordenates')
-        .get(coordenates.find_all)
-        .post(coordenates.save);
+    app.route('/coordinates')
+        .get(coordinates.find_all)
+        .post(coordinates.save);
 
-    app.route('/coordenates/:id')
-        .get(coordenates.find_by_id)
-        .put(coordenates.update)
-        .delete(coordenates.remove);
+    app.route('/coordinates/:id')
+        .get(coordinates.find_by_id)
+        .put(coordinates.update)
+        .delete(coordinates.remove);
 }

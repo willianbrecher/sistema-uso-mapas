@@ -131,6 +131,7 @@ app.controller('AppController', function ($scope, $http) {
         reader.onload = function (evt) {
             const points = evt.target.result.replace(/"/g, "").split('\n').slice(1);
             if (points.length <= 100) {
+                points.pop();
                 var mapPoints = points.map(item => {
                     const row = item.split(",");
                     const point = {};
